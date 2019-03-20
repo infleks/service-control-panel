@@ -1,0 +1,4 @@
+db.sqlite3
+servicecontrolpanel/__pycache__/
+theapp/__pycache__/
+theapp/migrations/

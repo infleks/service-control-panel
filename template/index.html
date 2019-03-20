@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Miriam+Libre:400,700" rel="stylesheet">
+
+    <title>Infina Service Control Panel</title>
+
+    <style>
+        * {
+            font-family: 'Miriam Libre', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        #iheader {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            background-color: silver;
+            color: white;
+
+            width: 100%;
+            height: 50px;
+        }
+
+        #imodalbg {
+            width: 100%;
+            height: 100%;
+
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            background-color: #DDDDDDDD;
+        }
+
+        #imodalclose {
+            display: flex;
+            flex-direction: row;
+            justify-content: right;
+
+            width: 430px;
+        }
+
+        #imodalclose>button {
+            background-color: white;
+            border: 0px;
+            cursor: pointer;
+        }
+
+        #imodal {
+            width: 400px;
+            padding: 15px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            background-color: white;
+            box-shadow: gray 0px 10px 10px;
+
+            border-radius: 10px;
+            border-top-right-radius: 0px;
+        }
+
+        .itable {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .irow {
+            display: flex;
+            flex-direction: row;
+            flex-basis: 100%;
+            width: 100%;
+
+            margin-bottom: 10px;
+        }
+
+        .ilabel {
+            flex: 2;
+            padding-right: 10px;
+        }
+
+        .iinput {
+            flex: 7;
+        }
+
+        .iinput>input {
+            width: 100%;
+        }
+
+        .ibutton {
+            flex: 1;
+
+            display: flex;
+            justify-content: center;
+        }
+
+        .ibutton>input {
+            width: 300px;
+            height: 40px;
+            
+            font-size: 20px;
+            font-weight: bold;
+
+            background-color: silver;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="iheader">
+        <h2>Infina Service Control Panel</h2>
+    </div>
+    
+    <button onclick="openModal()">ADD</button>
+
+    <div id="iservices">
+
+    </div>
+
+    <div id="imodalbg">
+        <div id="imodalclose">
+            <button onclick="closeModal()">close</button>
+        </div>
+        <form action="/saveservice" method="post">
+            {% csrf_token %}
+            <div id="imodal">
+                <h3>Add&Edit Service</h3>
+                <div class="itable">
+                    <div class="irow">
+                        <div class="ilabel">Name</div>
+                        <div class="iinput">
+                            <input type="text" name="sname" required placeholder="X Company Test 1"/>
+                        </div>
+                    </div>
+
+                    <div class="irow">
+                        <div class="ilabel">URL</div>
+                        <div class="iinput">
+                            <input type="text" name="surl" required placeholder="{protocol}://{ip|host}:{port}"/>
+                        </div>
+                    </div>
+
+                    <div class="irow">
+                        <div class="ilabel">User</div>
+                        <div class="iinput">
+                            <input type="text" name="suser" required placeholder="admin"/>
+                        </div>
+                    </div>
+
+                    <div class="irow">
+                        <div class="ilabel">Password</div>
+                        <div class="iinput">
+                            <input type="password" name="spwd" required placeholder="admin"/>
+                        </div>
+                    </div>
+
+                    <div class="irow">
+                        <div class="ilabel">Database</div>
+                        <div class="iinput">
+                            <input type="text" name="sdb" required placeholder="MsSQL 10.5"/>
+                        </div>
+                    </div>
+
+                    <div class="irow">
+                        <div class="ilabel">Server</div>
+                        <div class="iinput">
+                            <input type="text" name="ssrv" required placeholder="WildFly 10.0"/>
+                        </div>
+                    </div>
+
+                    <div class="irow">
+                        <div class="ilabel">Production</div>
+                        <div class="iinput">
+                            <input type="text" name="sprod" required placeholder="Infleks Wealth Management"/>
+                        </div>
+                    </div>
+
+                    <div class="irow">
+                        <div class="ibutton">
+                            <input type="submit" value="Send">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <script>
+        function closeModal() {
+            $("#imodalbg").css("display","none");
+        }
+
+        function openModal() {
+            $("#imodalbg").css("display","flex");
+        }
+
+        function requestServiceData() {
+            $.getJSON("/servicedata", function (data) {
+                if (data.error == 1) {
+                    alert(data.message);
+                } else if (data.error == 0) {
+                    let text;
+                    text = '<div class="itable">';
+                    
+                    text += '<div class="irow">';
+                    for(let i=0; i<data.titles.length; i++) {
+                        text += '<div class="ilabel">';
+                        text += data.titles[i];
+                        text += '</div>';
+                    }
+                    text += '</div>';
+
+                    for(let i=0; i<data.services.length; i++) {
+                        text += '<div class="irow">';
+                        for(let j=0; j<data.titles.length; j++) {
+                            text += '<div class="ilabel">';
+                            text += data.services[i][data.titles[j]];
+                            text += '</div>';
+                        }
+                        text += '</div>';
+                    }
+
+                    text += '</div>';
+
+                    $("#iservices").html(text);
+                }
+            });
+        }
+
+        requestServiceData();
+
+    </script>
+
+</body>
+
+</html>
